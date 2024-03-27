@@ -1,4 +1,5 @@
-#Sparse GP flow
+#Sparse GP flow#
+
 Ground truth
 
 <img src="fig/ground_truth.png" width="640" height="480"/>
