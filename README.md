@@ -1,4 +1,4 @@
-#Sparse GP flow#
+# Sparse GP flow
 
 Ground truth
 
