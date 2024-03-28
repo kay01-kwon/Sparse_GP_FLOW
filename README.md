@@ -1,5 +1,11 @@
 # Sparse GP flow
 
+## GPU FAN Setup
+
+```
+sudo jetson_clocks --fan
+```
+
 ## Run
 
 1. run SGPflow saved model.
@@ -7,10 +13,21 @@
 python3 server.py
 ```
 
-2. run python2.7 client model.
+2. Activate client_gp.py
+
 ```
-python2.7 client.py
+chmod +x client_gp.py
 ```
+
+3. Run client_gp.py
+
+```
+rosrun clinet_gp client_gp.py
+```
+
+4. The node subscribes to "/actual"
+
+5. It publishes "/tau_fric" (std_msgs/Float64)
 
 
 ## Ground truth
