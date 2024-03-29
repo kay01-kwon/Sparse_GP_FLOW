@@ -1,5 +1,9 @@
 # Sparse GP flow
 
+## Overview
+
+<img src="fig/overview.jpg" width = 640 height=480>
+
 ## GPU FAN Setup
 
 ```
