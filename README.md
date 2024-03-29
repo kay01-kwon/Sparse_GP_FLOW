@@ -29,7 +29,7 @@ rosrun clinet_gp client_gp.py
 
 5. The node subscribes to "/actual"
 
-6. It publishes "/tau_fric" (std_msgs/Float64)
+6. It publishes "/tau_fric" (msg_pkg/tau_fric)
 
 
 ## Ground truth
