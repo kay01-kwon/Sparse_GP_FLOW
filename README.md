@@ -13,21 +13,23 @@ sudo jetson_clocks --fan
 python3 server.py
 ```
 
-2. Activate client_gp.py
+2. Put clinet_gp into ~/catkin_ws/src 
+
+3. Activate client_gp.py
 
 ```
 chmod +x client_gp.py
 ```
 
-3. Run client_gp.py
+4. Run client_gp.py
 
 ```
 rosrun clinet_gp client_gp.py
 ```
 
-4. The node subscribes to "/actual"
+5. The node subscribes to "/actual"
 
-5. It publishes "/tau_fric" (std_msgs/Float64)
+6. It publishes "/tau_fric" (std_msgs/Float64)
 
 
 ## Ground truth
