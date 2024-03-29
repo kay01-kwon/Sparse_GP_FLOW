@@ -4,7 +4,7 @@ import numpy as np
 import socket
 import struct
 from msg_pkg.msg import actual
-from std_msgs.msg import Float64
+from msg_pkg.msg import tau_fric
 
 class ROS_SGP_Client:
     def __init__(self, PORT):
@@ -15,35 +15,44 @@ class ROS_SGP_Client:
         # Connection
         self.sock.connect(('localhost', PORT))
 
-        self.torque_meas = np.array([0.0,0.0,0.0])
-        self.omega_meas = np.array([0.0,0.0,0.0])
+        self.tau_motor = np.zeros((3,1))
+        self.omega = np.zeros((3,1))
+        self.tau_fric = np.zeros((3,1))
 
-        self.tau_fric = np.float64(0)
+        self.subscriber = rospy.Subscriber("/actual", actual,self.callback,queue_size=1)
+        self.publisher = rospy.Publisher("/tau_fric",tau_fric,queue_size=1)
 
-        self.subscriber = rospy.Subscriber("/actual", actual,self.callback)
-        self.publisher = rospy.Publisher("/tau_fric",Float64,queue_size=1)
+        self.tau_fric_msg = tau_fric()
 
     def combine_byte_array(self):
-        byte_array1 = self.data2byte_array(self.data1)
-        byte_array2 = self.data2byte_array(self.data2)
-        return byte_array1 + byte_array2
+        for i in range(3):
+            if i == 0:
+                byte_array = self.pack_byte_array(self.tau_motor[i])
+                continue
+            byte_array = byte_array + self.pack_byte_array(self.tau_motor[i])
+        
+        for i in range(3):
+            byte_array = byte_array + self.pack_byte_array(self.omega[i])
+        return byte_array
 
     def send_all_data(self):
         self.sock.send(self.combine_byte_array())
 
-    def data2byte_array(self, data):
+    def pack_byte_array(self, data):
         byte_array = bytearray(struct.pack('d',data))
         return byte_array
 
     def byte2output_data(self):
-        data_recv = self.sock.recv(8)
-        data_recv = np.float64(struct.unpack('d',data_recv))
-        print(data_recv)
-        self.tau_fric = data_recv
+        data_recv = self.sock.recv(100)
+        print(len(data_recv))
+        for i in range(3):
+            self.tau_fric[i] = np.float64(struct.unpack('d',data_recv[8*i:8*(i+1)]))
 
     def callback(self, msg):
-        self.data1 = msg.act_LIFT_torque[0]
-        self.data2 = msg.act_LIFT_vel[0]
+        for i in range(3):
+            self.tau_motor[i] = msg.act_LIFT_torque[i]
+            self.omega[i] = msg.act_LIFT_vel[i]
+
         self.send_all_data()
         self.byte2output_data()
         self.publish_tau_fric()
@@ -52,7 +61,12 @@ class ROS_SGP_Client:
         self.sock.close()
 
     def publish_tau_fric(self):
-        self.publisher.publish(self.tau_fric)
+        now = rospy.get_rostime()
+        self.tau_fric_msg.stamp.secs = now.secs
+        self.tau_fric_msg.stamp.nsecs = now.nsecs
+        for i in range(3):
+            self.tau_fric_msg.tau_fric[i] = self.tau_fric[i]
+        self.publisher.publish(self.tau_fric_msg)
 
 if __name__=='__main__':
     rospy.init_node("SGP_client",anonymous=True)
