@@ -2,7 +2,7 @@
 
 ## Overview
 
-<img src="fig/overview.jpg" width = 640 height=480>
+<img src="fig/overview.jpg">
 
 ## GPU FAN Setup
 
